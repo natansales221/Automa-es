@@ -43,6 +43,3 @@ for d in rotulos:
   reg[d] = index
   index=index+1
 print(reg)
-
-if dados[0][0] == 2004:
-    print('deu certo')
