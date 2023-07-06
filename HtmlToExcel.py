@@ -1,7 +1,7 @@
 import pandas as pd
 from bs4 import BeautifulSoup
 
-with open("C:/Users/natan.sales/Downloads/arquivos teste/Politica de Compliance - v008.html", encoding="utf-8") as fp:
+with open("C:/Users/natan.sales/Downloads/arquivos teste/teste.html", encoding="utf-8") as fp:
     soup = BeautifulSoup(fp, "html.parser")
 
 diretorio = 'C:/Users/natan.sales/Downloads/arquivos teste/'
