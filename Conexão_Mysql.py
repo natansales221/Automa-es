@@ -30,12 +30,12 @@ class connect_bd():
 
             print("finalizado com sucesso")
 
-    def inserir(self, resposta, cursor, con):
-        if resposta == 3:
+    def inserir(self, **kwargs):
+        if kwargs['resposta'] == 3:
             try:
-                cursor.execute("insert into cadastro (nome, login, senha)"
+                kwargs['cursor'].execute("insert into cadastro (nome, login, senha)"
                             "values ('natan', 'gsrgeovanna', 'natan123')")
-                con.commit()
+                kwargs['con'].commit()
                 print("finalizado com sucesso")
             except:
                 print("deu ruim")
@@ -60,7 +60,7 @@ class connect_bd():
         elif conection[0] == 2:
             self.criar(resposta = conection[0], cursor = conection[1])
         elif conection[0] == 3:
-            self.inserir(resposta = conection[0], cursor = conection[1], con = conection[2])
+            self.inserir(resposta=conection[0], cursor=conection[1], con=conection[2])
         elif conection[0] == 4:
             self.selecionar(resposta = conection[0], con = conection[2])
 
