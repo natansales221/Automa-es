@@ -9,7 +9,7 @@ from datetime import datetime
 class consulta_cpf():
 
     @property
-    def caminhos_cloud(self):
+    def caminho_do_upload(self):
         return [
             {
                 "nome_camimho": "caminho_do_arquivo",
@@ -21,7 +21,7 @@ class consulta_cpf():
         ]
 
     @property
-    def caminhos_site(self):
+    def caminho_da_pesquisa(self):
         return [
             {
                 "nome_camimho": "url_site",
@@ -35,9 +35,21 @@ class consulta_cpf():
     def token(self): 
         headers = {'Content-type': 'application/json', "Authorization":""}
        
-        r = requests.post(self.caminhos_site[0]["url_token"], headers=headers, data=json.dumps())
-        return r       
-
+        requests = requests.post(self.caminho_da_pesquisa[0]["url_token"], headers=headers, data=json.dumps())
+        return requests
+    
+    def colunas(self):
+        {
+                'id': [''],
+                'nome': [''],
+                'cpf': [''],
+                'endereço': [''],
+                'telefone': [''],
+                'rg': [''],
+                'tipo_sanguineo': [''],
+                'comida_preferida': [''],
+        }
+        
     def teste_token(self):
         try:
             
@@ -47,6 +59,7 @@ class consulta_cpf():
                 "params": {
                 "document":"",
                 "ano":"2022"} }
+            
             dataframe_base = {
                 'id': [''],
                 'nome': [''],
@@ -58,34 +71,34 @@ class consulta_cpf():
                 'comida_preferida': [''],
             }
 
-            self.log.info("lendo os arquivos para fazer comparativo")
+            print("lendo os arquivos para fazer comparativo")
 
-            df_controle = pd.read_csv(self.caminhos_site[0]['nome_camimho'], delimiter=';')
-            dt_controle = datetime.strptime(df_controle['endereço'][0], '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%d')
+            dataframe_do_nome = pd.read_csv(self.caminho_da_pesquisa[0]['nome_camimho'], delimiter=';')
+            str_data = datetime.strptime(dataframe_do_nome['endereço'][0], '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%d')
 
-            df_file = pd.read_csv(self.caminhos_site[0]['nome_camimho'], delimiter=';')
-            df_file['endereço'] = df_file['endereço'].str.replace('-', '').str.replace('/', '').str.replace('.', '')
-            df_file = df_file['endereço']
+            dataframe = pd.read_csv(self.caminho_da_pesquisa[0]['nome_camimho'], delimiter=';')
+            dataframe['endereço'] = dataframe['endereço'].str.replace('-', '').str.replace('/', '').str.replace('.', '')
+            dataframe = dataframe['endereço']
 
             
             df_certo = df_erro = df_sem_result = pd.DataFrame()
-            self.log.info("Arquivos lidos! Iniciando processamento")
-            r = self.token()
+            print("Arquivos lidos! Iniciando processamento")
+            token = self.token()
 
-            for a, data in enumerate(df_file):
+            for a, data in enumerate(dataframe):
                 if pd.isna(data):
-                        pass
+                    pass
                 else:
-                    if data < dt_controle:
-                        if r.status_code == 200:
-                            if pd.isna(df_file.loc[a, 'telefone']):
+                    if data < str_data:
+                        if token.status_code == 200:
+                            if pd.isna(dataframe.loc[a, 'telefone']):
 
-                                if df_file['telefone'].notnull().any():
+                                if dataframe['telefone'].notnull().any():
                                     a+=1
                                     pass
                             else:
-                                id = df_file['telefone'].values[a]
-                                params['params']['telefone'] = str(df_file['telefone'].values[a])
+                                id = dataframe['telefone'].values[a]
+                                params['params']['telefone'] = str(dataframe['telefone'].values[a])
 
                                 if id in lista_falha:
                                     a+=1
@@ -93,14 +106,14 @@ class consulta_cpf():
 
                                 else:
 
-                                    if r.status_code == 200:
+                                    if token.status_code == 200:
                                         headers = {'Content-type': 'application/json', "Authorization":""}
-                                        s_body = r.json()
+                                        s_body = token.json()
                                         
                                         #chamada de api realizada com sucesso
                                         # se faz necessária a mudança dos links para confirmação
-                                        headers['Authorization'] = 'Bearer ' + r.json()['access_token']
-                                        r_t = requests.post(self.caminhos_site[0]["url_api"], headers=headers, data=json.dumps(params))
+                                        headers['Authorization'] = 'Bearer ' + token.json()['access_token']
+                                        r_t = requests.post(self.caminho_da_pesquisa[0]["url_api"], headers=headers, data=json.dumps(params))
 
                                         if r_t.status_code == 500:
                                             self.token()
@@ -151,18 +164,18 @@ class consulta_cpf():
                                     else:
 
                                         status = s_body['nome']
-                                        self.log.info("Erro {}: {}".format(r.status_code, status))
+                                        print("Erro {}: {}".format(token.status_code, status))
                                         a+=1
 
-                        elif r.status_code == 401:
-                            r = self.token()
+                        elif token.status_code == 401:
+                            token = self.token()
                             pass
                     else:
 
-                        self.log.info('Não pesquisa')
+                        print('Não pesquisa')
                         a+=1
             
-            self.log.info("Salvando na pasta!")
+            print("Salvando na pasta!")
 
             df_final = pd.concat([df_sem_result, df_erro, df_certo], axis=0, ignore_index=True)
             df_final.rename(columns=self.colunas, inplace=True)
