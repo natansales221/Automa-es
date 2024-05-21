@@ -11,10 +11,10 @@ cdrive = r'diretorio'
 caminho = r'diretorio'
 options = Options()
 driver = webdriver.Chrome(executable_path=cdrive, options=options)
-filename = "CadFi.csv"
-txt_file = "cadfi_meta.txt"
+filename = "filename.csv"
+txt_file = "filename.txt"
 
-cloud_finaxis = {'CadFi.csv': '19-04-2023 09:34', 'cadfi_meta.txt': '20-04-2023 09:34'}
+dict_comparativa = {'filename.csv': '19-04-2023 09:34', 'filename.txt': '20-04-2023 09:34'}
 
 class download():
     
@@ -47,7 +47,7 @@ class download():
 
     def validacao_csv(self):
         service.extracao_dados_site()
-        if (cloud_finaxis['CadFi.csv'] < info['CadFi.csv']) & (cloud_finaxis['cadfi_meta.txt'] < info['cadfi_meta.txt']) :
+        if (dict_comparativa['filename.csv'] < info['filename.csv']) & (dict_comparativa['filename.txt'] < info['filename.txt']) :
             service.download_cad_fi_csv()
             service.download_cad_fi_txt()
             
@@ -71,7 +71,7 @@ class download():
 
             # Criação do dataframe e salvar em CSV
             df = pd.DataFrame(data_list, columns=["nm_arquivo", "dt_modificacao", "dt_carga"])
-            df.to_csv(new_folder + "\\tb_controle_cadfi.csv", index=False)  
+            df.to_csv(new_folder + "\\filename.csv", index=False)  
             
         else:
             print("nao vai baixar")
