@@ -14,7 +14,7 @@ class downloadFiles():
     # Função para baixar os arquivos
     def download(self):
 
-        diretorio =  r'C:\Users\natan\Desktop\Projetos\Automacoes'
+        diretorio =  r'C:\Users\natan\Desktop\Projetos\Automacoes\downloads'
         options = Options()
         # Fazendo com que nao abra janela
         options.add_argument("--headless")
@@ -39,7 +39,6 @@ class downloadFiles():
             # Baixando um arquivo teste
             driver.get('https://file-examples.com/index.php/sample-documents-download/sample-xls-download/')
             sleep(1.5)
-            # Aceitando o cookie       
             link = driver.find_element(By.XPATH, '//*[@id="table-files"]/tbody/tr[1]/td[5]/a')
             link.click()
             sleep(5) 
@@ -58,8 +57,7 @@ class downloadFiles():
     def agrupamento_csv(self):
         diretorio = self.download()
         # Encontrando o arquivo    
-        # diretorio = "./"
-        destino = diretorio + r"\csv"
+        destino = diretorio + r"\tirazip"
         # Verificando se a pasta de saída existe
         if not os.path.exists(destino):
             os.makedirs(destino)
@@ -75,7 +73,6 @@ class downloadFiles():
     # Função para transformar em xlsx               
     def agrupamento_xlsx(self):
         diretorio = self.download()
-        destino = diretorio + r"\csv"
         destino = diretorio + r"\xlsx"
         # Verificando se a pasta de saída existe
         if not os.path.exists(destino):
@@ -88,9 +85,10 @@ class downloadFiles():
                 df = pd.read_csv(input_file, encoding='ISO-8859-1', error_bad_lines=False, sep=';')
                 
                 # Escrevendo os dados em um novo arquivo XLSX na pasta de saída
-                output_file = os.path.join(diretorio, os.path.splitext(file_name)[0] + '.xlsx')
+                output_file = os.path.join(destino, os.path.splitext(file_name)[0] + '.xlsx')
                 df.to_excel(output_file, index=False)   
             
 if __name__ == "__main__":
     service=downloadFiles()
+    service.agrupamento_csv()
     service.agrupamento_xlsx()
